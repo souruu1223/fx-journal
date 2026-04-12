@@ -1,0 +1,213 @@
+.page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 32px 20px 60px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subtitle {
+  margin-top: 8px;
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  transition: 0.2s ease;
+}
+
+.secondaryLink:hover {
+  background: #f9fafb;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 16px;
+  background: #fff;
+  color: #111827;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.helpText {
+  margin-top: 10px;
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+.primaryButton {
+  margin-top: 20px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primaryButton:hover {
+  background: #1d4ed8;
+}
+
+.message {
+  margin-top: 14px;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.formGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.historyList {
+  display: grid;
+  gap: 10px;
+}
+
+.historyItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.historyLine {
+  margin: 0;
+  color: #111827;
+  line-height: 1.7;
+}
+
+.historyLine + .historyLine {
+  margin-top: 6px;
+}
+
+.emptyText {
+  color: #6b7280;
+}
+
+.historyActions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.dangerButton {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.secondaryButton {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.secondaryButton:hover {
+  background: #f9fafb;
+}
+
+.dangerButton {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+}
+
+.dangerButton:hover {
+  background: #fecaca;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 20px 12px 40px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .primaryButton {
+    width: 100%;
+  }
+}

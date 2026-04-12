@@ -1,0 +1,295 @@
+.page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 32px 20px 60px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.authWrapper {
+  min-height: 100vh;
+  background: #f5f7fb;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subtitle {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.userText {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.logoutButton,
+.primaryButton,
+.secondaryButton,
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primaryButton,
+.primaryLink {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+
+.primaryButton:hover,
+.primaryLink:hover {
+  background: #1d4ed8;
+}
+
+.secondaryButton,
+.secondaryLink,
+.logoutButton {
+  background: #fff;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+.secondaryButton:hover,
+.secondaryLink:hover,
+.logoutButton:hover {
+  background: #f9fafb;
+}
+
+.hero {
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  padding: 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 28px;
+  color: #111827;
+}
+
+.heroText {
+  margin-top: 10px;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.actionRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.summaryCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.cardLabel {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.cardValue {
+  margin: 10px 0 0;
+  font-size: 34px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 240px 240px minmax(0, 1fr);
+  gap: 18px;
+}
+
+.infoCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.analysisCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.memoCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.infoValue {
+  margin: 10px 0 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.infoText {
+  margin: 10px 0 0;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.message {
+  margin-top: 12px;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.memoTextarea {
+  width: 100%;
+  min-height: 140px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  resize: vertical;
+  background: #fff;
+  color: #111827;
+}
+
+.memoTextarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.memoActionRow {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tradeBreakdown {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.infoSubText {
+  margin: 0;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+
+
+@media (max-width: 900px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+  }
+
+  .cardValue {
+    font-size: 28px;
+  }
+}
