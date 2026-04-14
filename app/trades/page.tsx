@@ -85,19 +85,44 @@ export default function TradesPage() {
   }
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    let isMounted = true
 
-      if (user) {
-        await loadTrades(user.id)
+    const initialize = async () => {
+      try {
+        setMessage('')
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        const currentUser = session?.user ?? null
+
+        if (!isMounted) return
+
+        if (!currentUser) {
+          setTrades([])
+        } else {
+          await loadTrades(currentUser.id)
+        }
+      } catch (error) {
+        console.error('trades initialize error:', error)
+  
+        if (!isMounted) return
+  
+        setMessage('初期化エラーが発生しました')
+        setTrades([])
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
       }
-
-      setLoading(false)
     }
 
-    getUser()
+    initialize()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const getTotalProfit = (trade: Trade) => {

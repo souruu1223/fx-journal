@@ -74,39 +74,84 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    let isMounted = true
 
-      setUser(user ?? null)
+    const initialize = async () => {
+      try {
+        setMessage('')
 
-      if (user) {
-        await loadTrades(user.id)
-        await loadProfile(user.id)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+  
+        const currentUser = session?.user ?? null
+
+        if (!isMounted) return
+
+        setUser(currentUser)
+
+        if (!currentUser) {
+          setTrades([])
+          setDashboardMemo('')
+          setInitialBalance(null)
+        } else {
+          await loadTrades(currentUser.id)
+          await loadProfile(currentUser.id)
+        }
+      } catch (error) {
+        console.error('TOP initialize error:', error)
+  
+        if (!isMounted) return
+  
+        setMessage('初期化エラーが発生しました')
+        setUser(null)
+        setTrades([])
+        setDashboardMemo('')
+        setInitialBalance(null)
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
       }
-
-      setLoading(false)
     }
-
-    getUser()
-
+  
+    initialize()
+  
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null
+  
+      if (!isMounted) return
+  
       setUser(currentUser)
-
-      if (currentUser) {
-        await loadTrades(currentUser.id)
-        await loadProfile(currentUser.id)
-      } else {
-        setTrades([])
-        setDashboardMemo('')
+  
+      try {
+        setMessage('')
+  
+        if (!currentUser) {
+          setTrades([])
+          setDashboardMemo('')
+          setInitialBalance(null)
+        } else {
+          await loadTrades(currentUser.id)
+          await loadProfile(currentUser.id)
+        }
+      } catch (error) {
+        console.error('auth state change error:', error)
+  
+        if (!isMounted) return
+  
+        setMessage('認証状態の更新でエラーが発生しました')
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     })
-
+  
     return () => {
+      isMounted = false
       subscription.unsubscribe()
     }
   }, [])

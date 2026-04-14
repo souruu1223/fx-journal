@@ -42,11 +42,13 @@ export default function NewTradePage() {
     setMessage('')
 
     const {
-      data: { user },
-    } = await supabase.auth.getUser()
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    const user = session?.user ?? null
 
     if (!user) {
-      setMessage('ログインしてください')
+      setMessage('ログイン状態が確認できません。再ログインしてください')
       return
     }
 
