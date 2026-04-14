@@ -57,67 +57,90 @@ export default function AnalyticsPage() {
   const [capitalEvents, setCapitalEvents] = useState<any[]>([])
 
   useEffect(() => {
+    let isMounted = true
+
     const loadData = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      try {
+        setMessage('')
 
-      if (!user) {
-        setMessage('ログインしてください')
-        setLoading(false)
-        return
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        const user = session?.user ?? null
+
+        if (!isMounted) return
+
+        if (!user) {
+          setMessage('ログインしてください')
+          setTrades([])
+          setInitialBalance(null)
+          setCapitalEvents([])
+          return
+        }
+
+        const { data: tradeData, error: tradeError } = await supabase
+          .from('trades')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('entry_time', { ascending: true })
+  
+        if (tradeError) {
+          throw new Error('グラフ用データ取得エラー: ' + tradeError.message)
+        }
+  
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('initial_balance')
+          .eq('user_id', user.id)
+          .maybeSingle()
+  
+        if (profileError) {
+          throw new Error('初期資金取得エラー: ' + profileError.message)
+        }
+  
+        const { data: capitalData, error: capitalError } = await supabase
+          .from('capital_events')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('event_date', { ascending: true })
+  
+        if (capitalError) {
+          throw new Error('追加資金取得エラー: ' + capitalError.message)
+        }
+  
+        if (!isMounted) return
+  
+        setTrades((tradeData as Trade[]) || [])
+        setInitialBalance(
+          profileData?.initial_balance !== null &&
+            profileData?.initial_balance !== undefined
+            ? Number(profileData.initial_balance)
+            : null
+        )
+        setCapitalEvents(capitalData || [])
+      } catch (error) {
+        console.error('analytics error:', error)
+  
+        if (!isMounted) return
+  
+        setMessage(
+          error instanceof Error ? error.message : 'データ取得エラー'
+        )
+        setTrades([])
+        setCapitalEvents([])
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
       }
-
-      const { data: tradeData, error: tradeError } = await supabase
-        .from('trades')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('entry_time', { ascending: true })
-
-      if (tradeError) {
-        setMessage('グラフ用データ取得エラー: ' + tradeError.message)
-        setLoading(false)
-        return
-      }
-
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('initial_balance')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      if (profileError) {
-        setMessage('初期資金取得エラー: ' + profileError.message)
-        setLoading(false)
-        return
-      }
-
-      setTrades((tradeData as Trade[]) || [])
-      setInitialBalance(
-        profileData?.initial_balance !== null &&
-          profileData?.initial_balance !== undefined
-          ? Number(profileData.initial_balance)
-          : null
-      )
-
-      const { data: capitalData, error: capitalError } = await supabase
-        .from('capital_events')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('event_date', { ascending: true })
-   
-      if (capitalError) {
-        setMessage('追加資金取得エラー: ' + capitalError.message)
-        setLoading(false)
-        return
-      }
-      setCapitalEvents(capitalData || [])
-      setLoading(false)
-      
-      
     }
-
+  
     loadData()
+  
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const chartData = useMemo<ChartRow[]>(() => {

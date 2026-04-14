@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabaseClient'
 import styles from './page.module.css'
@@ -19,6 +20,8 @@ export default function NewTradePage() {
   const [size, setSize] = useState('0.1')
   const [riskReward, setRiskReward] = useState('')
   const [note, setNote] = useState('')
+
+  const router = useRouter()
 
   useEffect(() => {
     if (files.length === 0) {
@@ -120,15 +123,8 @@ export default function NewTradePage() {
     }
 
     setMessage('トレードを保存しました')
-    setSymbol('USDJPY')
-    setSide('BUY')
-    setEntryTime('')
-    setEntryPrice('')
-    setSize('0.1')
-    setRiskReward('')
-    setNote('')
-    setFiles([])
-    setPreviewUrls([])
+    router.push('/trades')
+    router.refresh()
   }
 
   return (
