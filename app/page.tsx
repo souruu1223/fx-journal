@@ -75,6 +75,7 @@ export default function Home() {
 
   useEffect(() => {
     let isMounted = true
+    let authTimer: number | null = null
 
     const initialize = async () => {
       try {
@@ -149,60 +150,69 @@ export default function Home() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       const currentUser = session?.user ?? null
 
       if (!isMounted) return
+
+      setMessage('')
+
+      if (!currentUser) {
+        setUser(null)
+        setTrades([])
+        setDashboardMemo('')
+        setInitialBalance(null)
+        setLoading(false)
+        return
+      }
     
-      try {
-        setMessage('')
-
-        if (!currentUser) {
-          setUser(null)
-          setTrades([])
-          setDashboardMemo('')
-          setInitialBalance(null)
-          return
-        }
+      setUser(currentUser)
     
-        // 🔥 ここ追加（重要）
-        const {
-          data: { user: verifiedUser },
-          error: userError,
-        } = await supabase.auth.getUser()
-
-        if (userError || !verifiedUser) {
-          await supabase.auth.signOut()
-
-          if (!isMounted) return
-
-          setUser(null)
-          setTrades([])
-          setDashboardMemo('')
-          setInitialBalance(null)
-          setMessage('セッションを更新しました。再ログインしてください。')
-          return
-       }
-
-        setUser(verifiedUser)
-
-        await loadTrades(verifiedUser.id)
-        await loadProfile(verifiedUser.id)
-      } catch (error) {
-        console.error('auth state change error:', error)
-
+      authTimer = window.setTimeout(async () => {
         if (!isMounted) return
     
-        setMessage('認証状態の更新でエラーが発生しました')
-      } finally {
-        if (isMounted) {
-          setLoading(false)
+        try {
+          const {
+            data: { user: verifiedUser },
+            error: userError,
+          } = await supabase.auth.getUser()
+    
+          if (userError || !verifiedUser) {
+            await supabase.auth.signOut()
+    
+            if (!isMounted) return
+    
+            setUser(null)
+            setTrades([])
+            setDashboardMemo('')
+            setInitialBalance(null)
+            setMessage('セッションを更新しました。再ログインしてください。')
+            return
+          }
+    
+          await loadTrades(verifiedUser.id)
+          await loadProfile(verifiedUser.id)
+        } catch (error) {
+          console.error('auth state change error:', error)
+    
+          if (!isMounted) return
+    
+          setMessage('認証状態の更新でエラーが発生しました')
+        } finally {
+          if (isMounted) {
+            setLoading(false)
+          }
         }
-      }
+      }, 0)
     })
 
     return () => {
       isMounted = false
+
+      if (authTimer !== null) {
+        window.clearTimeout(authTimer)
+      }
+
       subscription.unsubscribe()
     }
   }, [])
@@ -383,7 +393,7 @@ export default function Home() {
     return (
       <main className={styles.authWrapper}>
         <div className={styles.authCard}>
-          <h1 className={styles.title}>FXトレード記録アプリ</h1>
+          <h1 className={styles.title}>トレーダーHinata</h1>
           <p className={styles.subtitle}>まずはログインしてください</p>
 
           <div className={styles.authForm}>
@@ -423,7 +433,7 @@ export default function Home() {
       <div className={styles.container}>
         <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>FXトレード記録アプリ</h1>
+            <h1 className={styles.title}>トレーダーHinata</h1>
             <p className={styles.userText}>ログイン中: {user.email}</p>
           </div>
 
