@@ -80,68 +80,119 @@ export default function Home() {
       try {
         setMessage('')
 
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('auth timeout')), 5000)
+        )
+
+        const sessionResult = await Promise.race([
+          supabase.auth.getSession(),
+          timeout,
+        ])
+
         const {
           data: { session },
-        } = await supabase.auth.getSession()
-  
+        } = sessionResult as Awaited<ReturnType<typeof supabase.auth.getSession>>
+
         const currentUser = session?.user ?? null
 
         if (!isMounted) return
 
-        setUser(currentUser)
-
         if (!currentUser) {
+          setUser(null)
           setTrades([])
           setDashboardMemo('')
           setInitialBalance(null)
-        } else {
-          await loadTrades(currentUser.id)
-          await loadProfile(currentUser.id)
+          return
         }
+
+        const {
+          data: { user: verifiedUser },
+          error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError || !verifiedUser) {
+          await supabase.auth.signOut()
+
+          if (!isMounted) return
+
+          setUser(null)
+          setTrades([])
+          setDashboardMemo('')
+          setInitialBalance(null)
+          setMessage('セッションを更新しました。もう一度ログインしてください。')
+          return
+        }
+
+        setUser(verifiedUser)
+        await loadTrades(verifiedUser.id)
+        await loadProfile(verifiedUser.id)
       } catch (error) {
         console.error('TOP initialize error:', error)
-  
+    
+        await supabase.auth.signOut()
+
         if (!isMounted) return
-  
-        setMessage('初期化エラーが発生しました')
+
         setUser(null)
         setTrades([])
         setDashboardMemo('')
         setInitialBalance(null)
+        setMessage('認証状態をリセットしました。もう一度ログインしてください。')
       } finally {
         if (isMounted) {
           setLoading(false)
         }
       }
     }
-  
+
     initialize()
-  
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null
-  
+
       if (!isMounted) return
-  
-      setUser(currentUser)
-  
+    
       try {
         setMessage('')
-  
+
         if (!currentUser) {
+          setUser(null)
           setTrades([])
           setDashboardMemo('')
           setInitialBalance(null)
-        } else {
-          await loadTrades(currentUser.id)
-          await loadProfile(currentUser.id)
+          return
         }
+    
+        // 🔥 ここ追加（重要）
+        const {
+          data: { user: verifiedUser },
+          error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError || !verifiedUser) {
+          await supabase.auth.signOut()
+
+          if (!isMounted) return
+
+          setUser(null)
+          setTrades([])
+          setDashboardMemo('')
+          setInitialBalance(null)
+          setMessage('セッションを更新しました。再ログインしてください。')
+          return
+       }
+
+        setUser(verifiedUser)
+
+        await loadTrades(verifiedUser.id)
+        await loadProfile(verifiedUser.id)
       } catch (error) {
         console.error('auth state change error:', error)
-  
+
         if (!isMounted) return
-  
+    
         setMessage('認証状態の更新でエラーが発生しました')
       } finally {
         if (isMounted) {
@@ -149,7 +200,7 @@ export default function Home() {
         }
       }
     })
-  
+
     return () => {
       isMounted = false
       subscription.unsubscribe()
@@ -185,7 +236,7 @@ export default function Home() {
       return
     }
 
-    setMessage('ログイン成功！')
+    window.location.reload()
   }
 
   const handleSignOut = async () => {
