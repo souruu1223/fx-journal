@@ -279,7 +279,56 @@
 .tradeDetailLink:hover {
   background: #dbeafe;
 }
+.conditionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
+.conditionSortRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.conditionSortButton {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.conditionSortButton:hover {
+  background: #f9fafb;
+}
+
+.conditionSortButtonActive {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .conditionHeader {
+    flex-direction: column;
+  }
+
+  .conditionSortRow {
+    width: 100%;
+  }
+
+  .conditionSortButton {
+    flex: 1;
+  }
+}
 @media (max-width: 768px) {
   .conditionCard {
     padding: 16px;

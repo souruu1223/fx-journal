@@ -16,6 +16,7 @@ import styles from './page.module.css'
 
 type Side = 'BUY' | 'SELL'
 type GraphMode = 'profit' | 'balance'
+type ConditionSortKey = 'total' | 'winRate' | 'totalProfit'
 
 type Trade = {
   id: string
@@ -54,6 +55,7 @@ export default function AnalyticsPage() {
   const [trades, setTrades] = useState<Trade[]>([])
   const [initialBalance, setInitialBalance] = useState<number | null>(null)
   const [graphMode, setGraphMode] = useState<GraphMode>('profit')
+  const [conditionSortKey, setConditionSortKey] = useState<ConditionSortKey>('total')
 
   const [capitalEvents, setCapitalEvents] = useState<any[]>([])
 
@@ -251,6 +253,20 @@ export default function AnalyticsPage() {
     }
   }, [trades, chartData, initialBalance, capitalEvents])
 
+  const tradeNumberMap = useMemo(() => {
+    const sortedTrades = [...trades].sort((a, b) => {
+      return new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime()
+    })
+
+    const map = new Map<string, number>()
+
+    sortedTrades.forEach((trade, index) => {
+      map.set(trade.id, index + 1)
+    })
+  
+    return map
+  }, [trades])
+
   const conditionRows = useMemo(() => {
     const closedTrades = trades.filter(
       (trade) => trade.price_profit !== null || trade.fee !== null
@@ -305,8 +321,22 @@ export default function AnalyticsPage() {
       ...row,
       winRate: row.total > 0 ? (row.wins / row.total) * 100 : 0,
     }))
-    .sort((a, b) => b.total - a.total)
-}, [trades])
+    .sort((a, b) => {
+      if (conditionSortKey === 'total') {
+        return b.total - a.total
+      }
+
+      if (conditionSortKey === 'winRate') {
+        return b.winRate - a.winRate
+      }
+
+      if (conditionSortKey === 'totalProfit') {
+        return b.totalProfit - a.totalProfit
+      }
+
+      return 0
+    })
+  }, [trades, conditionSortKey])
 
   const getProfitClassName = (value: number) => {
     if (value > 0) return styles.profitPositive
@@ -565,7 +595,47 @@ export default function AnalyticsPage() {
             </section>
         
             <section className={styles.conditionCard}>
+              <div className={styles.conditionHeader}>
               <h2 className={styles.sectionTitle}>エントリー条件別成績</h2>
+
+                <div className={styles.conditionSortRow}>
+                  <button
+                    type="button"
+                    onClick={() => setConditionSortKey('total')}
+                    className={
+                      conditionSortKey === 'total'
+                        ? `${styles.conditionSortButton} ${styles.conditionSortButtonActive}`
+                        : styles.conditionSortButton
+                    }
+                  >
+                    回数順
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setConditionSortKey('winRate')}
+                    className={
+                      conditionSortKey === 'winRate'
+                        ? `${styles.conditionSortButton} ${styles.conditionSortButtonActive}`
+                        : styles.conditionSortButton
+                    }
+                  >
+                    勝率順
+                  </button>
+          
+                  <button
+                    type="button"
+                    onClick={() => setConditionSortKey('totalProfit')}
+                    className={
+                      conditionSortKey === 'totalProfit'
+                        ? `${styles.conditionSortButton} ${styles.conditionSortButtonActive}`
+                        : styles.conditionSortButton
+                    }
+                  >
+                    合計損益順
+                  </button>
+                </div>
+              </div>
         
               {conditionRows.length === 0 ? (
                 <p className={styles.emptyText}>エントリー条件の記録がまだありません</p>
@@ -598,15 +668,19 @@ export default function AnalyticsPage() {
                           </td>
                           <td>
                             <div className={styles.tradeLinkList}>
-                                {row.tradeIds.map((tradeId, index) => (
-                                  <Link
-                                    key={tradeId}
-                                    href={`/trades/${tradeId}`}
-                                    className={styles.tradeDetailLink}
-                                  >
-                                    詳細{index + 1}
-                                  </Link>
-                                ))}
+                                {[...row.tradeIds]
+                                  .sort((a, b) => {
+                                    return (tradeNumberMap.get(a) ?? 0) - (tradeNumberMap.get(b) ?? 0)
+                                  })
+                                  .map((tradeId) => (
+                                    <Link
+                                      key={tradeId}
+                                      href={`/trades/${tradeId}`}
+                                      className={styles.tradeDetailLink}
+                                    >
+                                      No.{tradeNumberMap.get(tradeId) ?? '—'}
+                                    </Link>
+                                  ))}
                               </div>
                             </td>
                         </tr>
