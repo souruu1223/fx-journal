@@ -32,6 +32,7 @@ type Trade = {
   size: number
   note: string | null
   created_at: string
+  entry_conditions: string[] | null
 }
 
 type ChartRow = {
@@ -249,6 +250,63 @@ export default function AnalyticsPage() {
       latestBalance,
     }
   }, [trades, chartData, initialBalance, capitalEvents])
+
+  const conditionRows = useMemo(() => {
+    const closedTrades = trades.filter(
+      (trade) => trade.price_profit !== null || trade.fee !== null
+    )
+
+    const stats: Record<
+      string,
+      {
+        condition: string
+        total: number
+        wins: number
+        losses: number
+        evens: number
+        totalProfit: number
+        tradeIds: string[]
+      }
+    > = {}
+
+    closedTrades.forEach((trade) => {
+      const conditions = trade.entry_conditions || []
+      const profit = (trade.price_profit ?? 0) + (trade.fee ?? 0)
+  
+      conditions.forEach((condition) => {
+        if (!stats[condition]) {
+          stats[condition] = {
+            condition,
+            total: 0,
+            wins: 0,
+            losses: 0,
+            evens: 0,
+            totalProfit: 0,
+            tradeIds: [],
+          }
+        }
+  
+        stats[condition].total += 1
+        stats[condition].totalProfit += profit
+        stats[condition].tradeIds.push(trade.id)
+  
+        if (profit > 0) {
+          stats[condition].wins += 1
+        } else if (profit < 0) {
+          stats[condition].losses += 1
+        } else {
+          stats[condition].evens += 1
+        }
+      })
+    })
+
+  return Object.values(stats)
+    .map((row) => ({
+      ...row,
+      winRate: row.total > 0 ? (row.wins / row.total) * 100 : 0,
+    }))
+    .sort((a, b) => b.total - a.total)
+}, [trades])
 
   const getProfitClassName = (value: number) => {
     if (value > 0) return styles.profitPositive
@@ -480,30 +538,85 @@ export default function AnalyticsPage() {
         </section>
 
         {chartData.length > 0 && (
-          <section className={styles.recentCard}>
-            <h2 className={styles.sectionTitle}>直近の損益</h2>
+          <>
+            <section className={styles.recentCard}>
+              <h2 className={styles.sectionTitle}>直近の損益</h2>
 
-            <div className={styles.recentGrid}>
-              {chartData.slice(-4).reverse().map((row, index) => (
-                <div
-                  key={`${row.fullDate}-${index}`}
-                  className={styles.recentItem}
-                >
-                  <p className={styles.recentDate}>{row.fullDate}</p>
-                  <p className={styles.recentSymbol}>{row.symbol}</p>
-                  <p className={`${styles.recentProfit} ${getProfitClassName(row.tradeProfit)}`}>
-                    {row.tradeProfit.toLocaleString()}
-                  </p>
-                  <p className={styles.recentCumulative}>
-                    累積損益: {row.cumulativeProfit.toLocaleString()}
-                  </p>
-                  <p className={styles.recentCumulative}>
-                    全体収支: {row.balance.toLocaleString()}
-                  </p>
+              <div className={styles.recentGrid}>
+                {chartData.slice(-4).reverse().map((row, index) => (
+                  <div
+                    key={`${row.fullDate}-${index}`}
+                    className={styles.recentItem}
+                  >
+                    <p className={styles.recentDate}>{row.fullDate}</p>
+                    <p className={styles.recentSymbol}>{row.symbol}</p>
+                    <p className={`${styles.recentProfit} ${getProfitClassName(row.tradeProfit)}`}>
+                      {row.tradeProfit.toLocaleString()}
+                    </p>
+                    <p className={styles.recentCumulative}>
+                      累積損益: {row.cumulativeProfit.toLocaleString()}
+                    </p>
+                    <p className={styles.recentCumulative}>
+                      全体収支: {row.balance.toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+        
+            <section className={styles.conditionCard}>
+              <h2 className={styles.sectionTitle}>エントリー条件別成績</h2>
+        
+              {conditionRows.length === 0 ? (
+                <p className={styles.emptyText}>エントリー条件の記録がまだありません</p>
+              ) : (
+                <div className={styles.conditionTableWrapper}>
+                  <table className={styles.conditionTable}>
+                    <thead>
+                      <tr>
+                        <th>条件</th>
+                        <th>回数</th>
+                        <th>勝ち</th>
+                        <th>負け</th>
+                        <th>同値</th>
+                        <th>勝率</th>
+                        <th>合計損益</th>
+                        <th>該当トレード</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {conditionRows.map((row) => (
+                        <tr key={row.condition}>
+                          <td>{row.condition}</td>
+                          <td>{row.total}</td>
+                          <td>{row.wins}</td>
+                          <td>{row.losses}</td>
+                          <td>{row.evens}</td>
+                          <td>{row.winRate.toFixed(1)}%</td>
+                          <td className={getProfitClassName(row.totalProfit)}>
+                            {row.totalProfit.toLocaleString()}
+                          </td>
+                          <td>
+                            <div className={styles.tradeLinkList}>
+                                {row.tradeIds.map((tradeId, index) => (
+                                  <Link
+                                    key={tradeId}
+                                    href={`/trades/${tradeId}`}
+                                    className={styles.tradeDetailLink}
+                                  >
+                                    詳細{index + 1}
+                                  </Link>
+                                ))}
+                              </div>
+                            </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))}
-            </div>
-          </section>
+              )}
+            </section>
+          </>
         )}
       </div>
     </main>

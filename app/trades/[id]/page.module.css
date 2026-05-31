@@ -502,7 +502,52 @@
   border-radius: 14px;
   display: block;
 }
+.navArrowButton {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 72px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.72);
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  transition: 0.2s ease;
+}
 
+.navArrowButton:hover {
+  background: rgba(37, 99, 235, 0.9);
+}
+
+.navArrowLeft {
+  left: 16px;
+}
+
+.navArrowRight {
+  right: 16px;
+}
+
+@media (max-width: 768px) {
+  .navArrowButton {
+    width: 40px;
+    height: 58px;
+    font-size: 24px;
+  }
+
+  .navArrowLeft {
+    left: 6px;
+  }
+
+  .navArrowRight {
+    right: 6px;
+  }
+}
 @media (max-width: 900px) {
   .heroMain,
   .detailGrid,

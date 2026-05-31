@@ -9,7 +9,6 @@ type Side = 'BUY' | 'SELL'
 
 type Trade = {
   id: string
-  user_id: string
   symbol: string
   side: Side
   entry_time: string
@@ -22,6 +21,7 @@ type Trade = {
   size: number
   note: string | null
   created_at: string
+  entry_conditions: string[] | null
 }
 
 type Attachment = {
@@ -43,6 +43,9 @@ export default function TradeDetailPage() {
   const [trade, setTrade] = useState<Trade | null>(null)
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [tradeNumber, setTradeNumber] = useState<number | null>(null)
+  const [prevTradeId, setPrevTradeId] = useState<string | null>(null)
+  const [nextTradeId, setNextTradeId] = useState<string | null>(null)
 
   const [isEditing, setIsEditing] = useState(false)
   const [editSymbol, setEditSymbol] = useState('')
@@ -56,6 +59,7 @@ export default function TradeDetailPage() {
   const [editFee, setEditFee] = useState('')
   const [editSize, setEditSize] = useState('')
   const [editNote, setEditNote] = useState('')
+  const [editEntryConditionsText, setEditEntryConditionsText] = useState('')
 
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null)
   const [newFiles, setNewFiles] = useState<File[]>([])
@@ -163,6 +167,38 @@ export default function TradeDetailPage() {
 
     const loadedTrade = tradeData as Trade
 
+    const { data: allTradeData, error: allTradeError } = await supabase
+      .from('trades')
+      .select('id, entry_time')
+      .eq('user_id', user.id)
+      .order('entry_time', { ascending: true })
+
+    if (allTradeError) {
+      setMessage('トレード番号取得エラー: ' + allTradeError.message)
+      setLoading(false)
+      return
+    }
+
+    const currentIndex = (allTradeData || []).findIndex(
+      (item) => item.id === loadedTrade.id
+    )
+
+    setTradeNumber(currentIndex >= 0 ? currentIndex + 1 : null)
+
+    setPrevTradeId(
+      currentIndex > 0 && allTradeData
+        ? allTradeData[currentIndex - 1].id
+        : null
+    )
+
+    setNextTradeId(
+      allTradeData && currentIndex >= 0 && currentIndex < allTradeData.length - 1
+        ? allTradeData[currentIndex + 1].id
+        : null
+    )
+
+    
+
     setTrade(loadedTrade)
     setAttachments((attachmentData as Attachment[]) || [])
 
@@ -177,10 +213,13 @@ export default function TradeDetailPage() {
     setEditFee(loadedTrade.fee !== null ? String(loadedTrade.fee) : '')
     setEditSize(String(loadedTrade.size))
     setEditNote(loadedTrade.note || '')
+    setEditEntryConditionsText((loadedTrade.entry_conditions || []).join(', '))
 
     setLoading(false)
   }
 
+  
+  
   useEffect(() => {
     if (tradeId) {
       loadTradeDetail()
@@ -228,6 +267,10 @@ export default function TradeDetailPage() {
         fee: editFee ? Number(editFee) : null,
         size: Number(editSize),
         note: editNote,
+        entry_conditions: editEntryConditionsText
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
         updated_at: new Date().toISOString(),
       })
       .eq('id', trade.id)
@@ -256,6 +299,7 @@ export default function TradeDetailPage() {
     setEditFee(trade.fee !== null ? String(trade.fee) : '')
     setEditSize(String(trade.size))
     setEditNote(trade.note || '')
+    setEditEntryConditionsText((trade.entry_conditions || []).join(', '))
     setNewFiles([])
     setPreviewUrls([])
     setIsEditing(false)
@@ -386,6 +430,7 @@ export default function TradeDetailPage() {
     return (
       <main className={styles.page}>
         <div className={styles.container}>
+          
           <button onClick={() => router.push('/trades')} className={styles.backButton}>
             一覧に戻る
           </button>
@@ -416,6 +461,27 @@ export default function TradeDetailPage() {
     <>
       <main className={styles.page}>
         <div className={styles.container}>
+          {prevTradeId && (
+            <button
+              type="button"
+              onClick={() => router.push(`/trades/${prevTradeId}`)}
+              className={`${styles.navArrowButton} ${styles.navArrowLeft}`}
+              aria-label="前のトレードへ"
+            >
+              ＜
+            </button>
+          )}
+
+          {nextTradeId && (
+            <button
+              type="button"
+              onClick={() => router.push(`/trades/${nextTradeId}`)}
+              className={`${styles.navArrowButton} ${styles.navArrowRight}`}
+              aria-label="次のトレードへ"
+            >
+              ＞
+            </button>
+          )}
           <div className={styles.header}>
             <div>
               <h1 className={styles.title}>トレード詳細</h1>
@@ -429,6 +495,13 @@ export default function TradeDetailPage() {
 
           <section className={styles.heroCard}>
             <div className={styles.heroMain}>
+              <div>
+                <p className={styles.heroLabel}>No.</p>
+                <p className={styles.heroValue}>
+                  {tradeNumber !== null ? tradeNumber : '—'}
+                </p>
+              </div>
+              
               <div>
                 <p className={styles.heroLabel}>通貨ペア</p>
                 <p className={styles.heroValue}>{trade.symbol}</p>
@@ -539,6 +612,14 @@ export default function TradeDetailPage() {
                       <span className={styles.infoLabel}>リスクリワード</span>
                       <span className={styles.infoValueText}>
                         {trade.risk_reward ?? '—'}
+                      </span>
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>エントリー条件</span>
+                      <span className={styles.infoValueText}>
+                        {trade.entry_conditions && trade.entry_conditions.length > 0
+                          ? trade.entry_conditions.join(' / ')
+                          : '—'}
                       </span>
                     </div>
                   </div>
@@ -702,6 +783,17 @@ export default function TradeDetailPage() {
                     className={styles.input}
                   />
                 </div>
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>エントリー条件</label>
+                <input
+                  type="text"
+                  value={editEntryConditionsText}
+                  onChange={(e) => setEditEntryConditionsText(e.target.value)}
+                  placeholder="例: MA25, 下髭3回, H1パーフェクトオーダー"
+                  className={styles.input}
+                />
               </div>
 
               <div className={styles.field}>

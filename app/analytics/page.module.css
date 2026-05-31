@@ -213,6 +213,79 @@
   font-size: 14px;
   color: #6b7280;
 }
+.conditionCard {
+  margin-top: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.conditionTableWrapper {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.conditionTable {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.conditionTable th {
+  background: #f9fafb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.conditionTable td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #111827;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.conditionTable tbody tr:hover {
+  background: #f8fbff;
+}
+.tradeLinkList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tradeDetailLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tradeDetailLink:hover {
+  background: #dbeafe;
+}
+
+@media (max-width: 768px) {
+  .conditionCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+}
 
 @media (max-width: 768px) {
   .page {

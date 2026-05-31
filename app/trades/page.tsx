@@ -21,6 +21,7 @@ type Trade = {
   size: number
   note: string | null
   created_at: string
+  entry_conditions: string[] | null
 }
 
 type Attachment = {
@@ -250,6 +251,20 @@ export default function TradesPage() {
     })
   }, [trades, searchSymbol, sideFilter, statusFilter, startDate, endDate])
 
+  const tradeNumberMap = useMemo(() => {
+    const sortedTrades = [...trades].sort((a, b) => {
+      return new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime()
+    })
+  
+    const map = new Map<string, number>()
+  
+    sortedTrades.forEach((trade, index) => {
+      map.set(trade.id, index + 1)
+    })
+  
+    return map
+  }, [trades])
+
   const resetFilters = () => {
     setSearchSymbol('')
     setSideFilter('all')
@@ -372,9 +387,11 @@ export default function TradesPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th>No.</th>
                   <th>エントリー日付</th>
                   <th>時間</th>
                   <th>通貨ペア</th>
+                  <th>エントリー条件</th>
                   <th>状態</th>
                   <th>売買</th>
                   <th>価格</th>
@@ -387,20 +404,33 @@ export default function TradesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTrades.map((trade) => {
+                {filteredTrades.map((trade, index) => {
                   const totalProfit = getTotalProfit(trade)
                   const status = getStatus(trade)
 
                   return (
                     <tr key={trade.id}>
+                      <td className={styles.numberCell}>
+                        {tradeNumberMap.get(trade.id) ?? '—'}
+                      </td>
+                      
                       <td>{formatDate(trade.entry_time)}</td>
                       <td>{formatTime(trade.entry_time)}</td>
+
                       <td className={styles.symbolCell}>{trade.symbol}</td>
+
+                      <td className={styles.conditionCell}>
+                        {trade.entry_conditions && trade.entry_conditions.length > 0
+                          ? trade.entry_conditions.join(' / ')
+                          : '—'}
+                      </td>
+                    
                       <td>
                         <span className={`${styles.statusBadge} ${status.className}`}>
                           {status.label}
                         </span>
                       </td>
+                    
                       <td>
                         <span
                           className={
@@ -410,13 +440,15 @@ export default function TradesPage() {
                           {trade.side}
                         </span>
                       </td>
+                    
                       <td>{trade.entry_price}</td>
-                      <td>{trade.risk_reward ?? '—'}</td>
-                      <td>{formatTime(trade.exit_time)}</td>
-                      <td>{trade.exit_price ?? '—'}</td>
-                      <td
-                        className={
-                          totalProfit === null
+                     <td>{trade.risk_reward ?? '—'}</td>
+                     <td>{formatTime(trade.exit_time)}</td>
+                     <td>{trade.exit_price ?? '—'}</td>
+                    
+                     <td
+                       className={
+                         totalProfit === null
                             ? styles.profitPending
                             : totalProfit > 0
                             ? styles.profitWin
@@ -427,6 +459,7 @@ export default function TradesPage() {
                       >
                         {totalProfit !== null ? totalProfit.toLocaleString() : '—'}
                       </td>
+                    
                       <td>
                         <Link
                           href={`/trades/${trade.id}`}
@@ -435,6 +468,7 @@ export default function TradesPage() {
                           詳細
                         </Link>
                       </td>
+                    
                       <td>
                         <button
                           type="button"

@@ -20,6 +20,7 @@ export default function NewTradePage() {
   const [size, setSize] = useState('0.1')
   const [riskReward, setRiskReward] = useState('')
   const [note, setNote] = useState('')
+  const [entryConditionsText, setEntryConditionsText] = useState('')
 
   const router = useRouter()
 
@@ -71,6 +72,10 @@ export default function NewTradePage() {
         size: Number(size),
         risk_reward: riskReward ? Number(riskReward) : null,
         note,
+        entry_conditions: entryConditionsText
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
       })
       .select()
       .single()
@@ -214,6 +219,16 @@ export default function NewTradePage() {
                 placeholder="例: 1.5"
                 value={riskReward}
                 onChange={(e) => setRiskReward(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}>エントリー条件</label>
+              <input
+                type="text"
+                placeholder="例: MA25, 下髭3回, H1パーフェクトオーダー"
+                value={entryConditionsText}
+                onChange={(e) => setEntryConditionsText(e.target.value)}
                 className={styles.input}
               />
             </div>
