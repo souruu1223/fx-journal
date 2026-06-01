@@ -22,6 +22,7 @@ type Trade = {
   note: string | null
   created_at: string
   entry_conditions: string[] | null
+  max_fib_reached: number | null
 }
 
 type Attachment = {
@@ -56,6 +57,7 @@ export default function TradeDetailPage() {
   const [editExitPrice, setEditExitPrice] = useState('')
   const [editRiskReward, setEditRiskReward] = useState('')
   const [editPriceProfit, setEditPriceProfit] = useState('')
+  const [editMaxFibReached, setEditMaxFibReached] = useState('')
   const [editFee, setEditFee] = useState('')
   const [editSize, setEditSize] = useState('')
   const [editNote, setEditNote] = useState('')
@@ -209,6 +211,9 @@ export default function TradeDetailPage() {
     setEditExitTime(loadedTrade.exit_time ? formatForDatetimeLocal(loadedTrade.exit_time) : '')
     setEditExitPrice(loadedTrade.exit_price !== null ? String(loadedTrade.exit_price) : '')
     setEditRiskReward(loadedTrade.risk_reward !== null ? String(loadedTrade.risk_reward) : '')
+    setEditMaxFibReached(
+      loadedTrade.max_fib_reached !== null ? String(loadedTrade.max_fib_reached) : ''
+    )
     setEditPriceProfit(loadedTrade.price_profit !== null ? String(loadedTrade.price_profit) : '')
     setEditFee(loadedTrade.fee !== null ? String(loadedTrade.fee) : '')
     setEditSize(String(loadedTrade.size))
@@ -263,6 +268,7 @@ export default function TradeDetailPage() {
         exit_time: editExitTime ? new Date(editExitTime).toISOString() : null,
         exit_price: editExitPrice ? Number(editExitPrice) : null,
         risk_reward: editRiskReward ? Number(editRiskReward) : null,
+        max_fib_reached: editMaxFibReached ? Number(editMaxFibReached) : null,
         price_profit: editPriceProfit ? Number(editPriceProfit) : null,
         fee: editFee ? Number(editFee) : null,
         size: Number(editSize),
@@ -295,6 +301,9 @@ export default function TradeDetailPage() {
     setEditExitTime(trade.exit_time ? formatForDatetimeLocal(trade.exit_time) : '')
     setEditExitPrice(trade.exit_price !== null ? String(trade.exit_price) : '')
     setEditRiskReward(trade.risk_reward !== null ? String(trade.risk_reward) : '')
+    setEditMaxFibReached(
+      trade.max_fib_reached !== null ? String(trade.max_fib_reached) : ''
+    )
     setEditPriceProfit(trade.price_profit !== null ? String(trade.price_profit) : '')
     setEditFee(trade.fee !== null ? String(trade.fee) : '')
     setEditSize(String(trade.size))
@@ -637,6 +646,13 @@ export default function TradeDetailPage() {
                     </div>
 
                     <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>最大到達Fib</span>
+                      <span className={styles.infoValueText}>
+                        {trade.max_fib_reached ?? '—'}
+                      </span>
+                    </div>
+
+                    <div className={styles.infoRow}>
                       <span className={styles.infoLabel}>価格差損益</span>
                       <span className={styles.infoValueText}>
                         {trade.price_profit ?? '—'}
@@ -749,6 +765,20 @@ export default function TradeDetailPage() {
                     step="0.1"
                     value={editRiskReward}
                     onChange={(e) => setEditRiskReward(e.target.value)}
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.label}>最大到達Fib</label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    min="1"
+                    max="3.3"
+                    value={editMaxFibReached}
+                    onChange={(e) => setEditMaxFibReached(e.target.value)}
+                    placeholder="例: 1.618"
                     className={styles.input}
                   />
                 </div>

@@ -22,6 +22,7 @@ type Trade = {
   note: string | null
   created_at: string
   entry_conditions: string[] | null
+  max_fib_reached: number | null
 }
 
 type Attachment = {
@@ -388,14 +389,15 @@ export default function TradesPage() {
               <thead>
                 <tr>
                   <th>No.</th>
-                  <th>エントリー日付</th>
+                  <th>日付</th>
                   <th>時間</th>
                   <th>通貨ペア</th>
                   <th>エントリー条件</th>
                   <th>状態</th>
                   <th>売買</th>
                   <th>価格</th>
-                  <th>リスクリワード</th>
+                  <th>RR</th>
+                  <th>最大到達Fib</th>
                   <th>決済時間</th>
                   <th>決済価格</th>
                   <th>損益</th>
@@ -443,6 +445,7 @@ export default function TradesPage() {
                     
                       <td>{trade.entry_price}</td>
                      <td>{trade.risk_reward ?? '—'}</td>
+                     <td>{trade.max_fib_reached ?? '—'}</td>
                      <td>{formatTime(trade.exit_time)}</td>
                      <td>{trade.exit_price ?? '—'}</td>
                     
